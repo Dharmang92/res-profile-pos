@@ -127,8 +127,6 @@ if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["e
                 <input type='button' value='-' onclick="$(\'#position${countPos}\').remove();return false;"></p>
                 <textarea name='desc${countPos}' rows='8' cols='80'></textarea></div>`
             );
-
-
         });
     });
 </script>
