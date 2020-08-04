@@ -46,12 +46,12 @@ session_start();
                 echo "<p style='color:red'>No resumes inserted by the user</p>";
             } else {
                 // we need to again execute query in order to get the pointer reset.
-                $stmt = $pdo->query("select first_name, last_name, headline, profile_id from profile");
+                $stmt = $pdo->query("select profile_id, first_name, last_name, headline, profile_id from profile");
                 echo "<table border=1>";
                 echo "<tr><td><b>Name</b></td><td><b>Headline</b></td><td><b>Action</b></td></tr>";
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     echo "<tr>";
-                    echo "<td>" . htmlentities($row["first_name"]) . " " . htmlentities($row["last_name"]) . "</td>";
+                    echo "<td><a href=view.php?profile_id=" . htmlentities($row["profile_id"]) . ">" . htmlentities($row["first_name"]) . " " . htmlentities($row["last_name"]) . "</a></td>";
                     echo  "<td>" . htmlentities($row["headline"]) . "</td>";
                     echo  "<td>" . "<a href='edit.php?profile_id=" . $row['profile_id'] . "'>Edit</a> <a href='delete.php?profile_id=" . $row['profile_id'] . "'>Delete</a>" . "</td>";
                     echo "</tr>";
