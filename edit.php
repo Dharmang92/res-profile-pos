@@ -124,7 +124,21 @@ if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["e
             <p>Summary: <br /><textarea name="summary" cols="80" rows="8"><?= $s ?></textarea>
                 <input type="hidden" name="profile_id" value="<?= $id ?>" />
                 <p>Position: <input type="submit" value="+" id="addPos"></p>
-                <div id="position_fields"></div>
+                <div id="position_fields">
+                    <?php
+                    $count = 0;
+                    $stmt = $pdo->prepare("SELECT year, description FROM position WHERE profile_id = :pid");
+                    $stmt->execute(array(':pid' => $_GET['profile_id']));
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $count++;
+                        echo '<div id="position' . $count . '">' . "\n";
+                        echo '<p>Year: <input type="text" value="' . htmlentities($row['year']) . '" name="year' . $count . '"> ';
+                        echo '<input type="button" value="-" onclick="$(\'#position' . $count . '\').remove();">' . "</p>\n";
+                        echo '<p><textarea name="desc' . $count . '" rows="8" cols="80">' . htmlentities($row['description']) . '</textarea></p>';
+                        echo "</div>\n";
+                    }
+                    ?>
+                </div>
                 <p><input type="submit" value="Save"> <input type="submit" name="cancel" value="Cancel"></p>
         </form>
     </div>
@@ -133,7 +147,7 @@ if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["e
 </html>
 
 <script>
-    countPos = 0;
+    countPos = <?= $count ?>;
     $(document).ready(function() {
         $("#addPos").click(function(event) {
             event.preventDefault();
@@ -147,8 +161,6 @@ if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["e
                 <input type='button' value='-' onclick="$(\'#position${countPos}\').remove();return false;"></p>
                 <textarea name='desc${countPos}' rows='8' cols='80'></textarea></div>`
             );
-
-
         });
     });
 </script>
