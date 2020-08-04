@@ -32,6 +32,23 @@ if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["e
         header("Location: edit.php?profile_id=" . $_POST["profile_id"]);
         return;
     } else {
+        for ($i = 1; $i <= 9; $i++) {
+            if (!isset($_POST['year' . $i])) continue;
+            if (!isset($_POST['desc' . $i])) continue;
+            $year = $_POST['year' . $i];
+            $desc = $_POST['desc' . $i];
+            if (strlen($year) == 0 || strlen($desc) == 0) {
+                $_SESSION["fail"] = "All fields are required";
+                header("Location: edit.php?profile_id=" . $_POST["profile_id"]);
+                return;
+            }
+            if (!is_numeric($year)) {
+                $_SESSION["fail"] = "Year must be numeric";
+                header("Location: edit.php?profile_id=" . $_POST["profile_id"]);
+                return;
+            }
+        }
+
         if (strpos($_POST["email"], "@") !== false) {
             $stmt = $pdo->prepare("update profile set first_name=:fn, last_name=:ln, email=:em, headline=:hd, summary=:sm where profile_id=:pid;");
             $stmt->execute(array(
@@ -42,6 +59,28 @@ if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["e
                 ":hd" => $_POST["headline"],
                 ":sm" => $_POST["summary"]
             ));
+
+            $profile_id = $_POST["profile_id"];
+            $stmt = $pdo->prepare("DELETE FROM Position WHERE profile_id=:pid");
+            $stmt->execute(array(':pid' => $_GET['profile_id']));
+
+
+            $rank = 1;
+            for ($i = 1; $i <= 9; $i++) {
+                if (!isset($_POST['year' . $i])) continue;
+                if (!isset($_POST['desc' . $i])) continue;
+                $year = $_POST['year' . $i];
+                $desc = $_POST['desc' . $i];
+
+                $stmt = $pdo->prepare("INSERT INTO Position (profile_id, rank, year, description) VALUES( :pid, :rank, :year, :desc)");
+                $stmt->execute(array(
+                    ':pid' => $_REQUEST['profile_id'],
+                    ':rank' => $rank,
+                    ':year' => $year,
+                    ':desc' => $desc
+                ));
+                $rank++;
+            }
 
             $_SESSION["success"] = "Profile edited";
             header("Location: index.php");
@@ -84,9 +123,32 @@ if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["e
             <p>Headline: <br /><input type="text" name="headline" size="80" value="<?= $h ?>" /></p>
             <p>Summary: <br /><textarea name="summary" cols="80" rows="8"><?= $s ?></textarea>
                 <input type="hidden" name="profile_id" value="<?= $id ?>" />
+                <p>Position: <input type="submit" value="+" id="addPos"></p>
+                <div id="position_fields"></div>
                 <p><input type="submit" value="Save"> <input type="submit" name="cancel" value="Cancel"></p>
         </form>
     </div>
 </body>
 
 </html>
+
+<script>
+    countPos = 0;
+    $(document).ready(function() {
+        $("#addPos").click(function(event) {
+            event.preventDefault();
+            if (countPos >= 9) {
+                alert("Maximum of nine positions entries exceeded");
+                return;
+            }
+            countPos++;
+            $("#position_fields").append(
+                `<div id="position${countPos}"><p>Year: <input type='text' name='year${countPos}' value="" /> 
+                <input type='button' value='-' onclick="$(\'#position${countPos}\').remove();return false;"></p>
+                <textarea name='desc${countPos}' rows='8' cols='80'></textarea></div>`
+            );
+
+
+        });
+    });
+</script>

@@ -53,7 +53,7 @@ if (isset($_POST["first_name"]) && isset($_POST["last_name"]) && isset($_POST["e
                 $year = $_POST['year' . $i];
                 $desc = $_POST['desc' . $i];
 
-                // give error if I don't leave space between 'Position' '(profile_id)' 😮
+                // giving error if I don't leave space between 'Position' '(profile_id)' 😮
                 $stmt = $pdo->prepare("INSERT INTO Position (profile_id, rank, year, description) VALUES ( :pid, :rank, :year, :desc)");
                 $stmt->execute(array(
                     ':pid' => $profile_id,
